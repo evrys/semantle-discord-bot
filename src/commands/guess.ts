@@ -135,16 +135,24 @@ async function guessWord(user: { id: string, name: string }, channelId: string, 
     await KV.put(`guesses/${channelId}/${secret}`, JSON.stringify(guesses))
   }
 
-  const top5 = guesses.filter(g => g !== guess).slice(0, 5)
+  let output = ``
+
+  if (guess.percentile === 1000) {
+    output += `${guess.user.name} wins! The secret word is **${guess.word}**.`
+  } else {
+    output += `${guess.user.name} guesses **${guess.word}**!`
+  }
 
   const table = new AsciiTable()
   table
     .removeBorder()
-    .setHeading("#", "Guess", "Similarity", "Getting close?", "")
+    .setHeading("From", "#", "Guess", "Similarity", "Getting close?", "")
 
-  table.addRow(guess.guessNumber, guess.word, guess.similarity.toFixed(2), renderPercentile(guess.percentile))
+  table.addRow(guess.user.name, guess.guessNumber, guess.word, guess.similarity.toFixed(2), renderPercentile(guess.percentile))
+
+  const top5 = guesses.filter(g => g !== guess).slice(0, 5)
   for (const g of top5) {
-    table.addRow(g.guessNumber, g.word, g.similarity.toFixed(2), renderPercentile(g.percentile))
+    table.addRow(g.user.name, g.guessNumber, g.word, g.similarity.toFixed(2), renderPercentile(g.percentile))
   }
 
   table.setHeadingAlignLeft()
@@ -162,10 +170,25 @@ async function guessWord(user: { id: string, name: string }, channelId: string, 
     lines.push("  ...")
   }
 
+  output += "\n```\n" + lines.join("\n") + "\n```"
+
+  if (guess.percentile === 1000) {
+    const time = Date.now() / 86400000
+    const nextDay = Math.ceil(time)
+    const timeUntilNext = (nextDay - time) * 86400000
+    const hours = timeUntilNext / 1000 / 3600
+    const leftoverMinutes = (hours - Math.floor(hours)) * 60
+    const timeDesc = `${Math.floor(hours)}h${Math.floor(leftoverMinutes)}m`
+
+  
+    output += `\nYou found it in **${guess.guessNumber}** guesses.`
+    output += `\nNext game will be ready in ${timeDesc}.`
+  }
+
   return {
     type: InteractionResponseType.ChannelMessageWithSource,
     data: {
-      content: "```\n" + lines.join("\n") + "\n```"
+      content: output
     },
   };
 }
