@@ -2,10 +2,8 @@ import {
   ApplicationCommand,
   InteractionHandler,
 } from "@glenstack/cf-workers-discord-bot";
-import { command as scriptCommand, handler as scriptHandler } from "./script";
-import { command as docsCommand, handler as docsHandler } from "./docs";
+import { command as guessCommand, handler as guessHandler } from "./guess";
 
 export const commands: [ApplicationCommand, InteractionHandler][] = [
-  [scriptCommand, scriptHandler],
-  [docsCommand, docsHandler],
+  [guessCommand, guessHandler],
 ];

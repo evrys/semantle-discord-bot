@@ -9,9 +9,9 @@ const slashCommandHandler = createSlashCommandHandler({
   commands,
 });
 
-addEventListener("scheduled", (event) => {
-  event.waitUntil(workersReleaseNotes());
-});
+// addEventListener("scheduled", (event) => {
+//   event.waitUntil(workersReleaseNotes());
+// });
 
 addEventListener("fetch", (event) => {
   event.respondWith(slashCommandHandler(event.request));
