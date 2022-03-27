@@ -7,15 +7,14 @@ import {
   ApplicationCommandInteractionDataOption,
   InteractionHandler,
   InteractionResponse,
-  InteractionResponseType,
-  GuildMember,
-} from "@glenstack/cf-workers-discord-bot";
-import { secretWords } from "../secretWords"
+  InteractionResponseType
+} from "@glenstack/cf-workers-discord-bot"
 // @ts-ignore
 import AsciiTable from 'ascii-table'
+import { getSemantleGameToday } from '../semantle'
 
 export const command: ApplicationCommand = {
-  name: "guess",
+  name: "g",
   description: "Make a semantle guess",
   options: [
     {
@@ -25,70 +24,13 @@ export const command: ApplicationCommand = {
       required: true
     },
   ],
-};
-
-function mag(a: number[]) {
-  return Math.sqrt(a.reduce(function(sum, val) {
-      return sum + val * val;
-  }, 0));
 }
 
-function dot(f1: number[], f2: number[]) {
-  return f1.reduce(function(sum, a, idx) {
-      return sum + a*f2[idx];
-  }, 0);
-}
-
-function getCosSim(f1: number[], f2: number[]) {
-  return dot(f1,f2)/(mag(f1)*mag(f2));
-}
-
-/**
- * Retrieve similiarity data between a secret and a guess word
- * from the semantle server. Successful responses are cached
- * indefinitely in KV store.
- */
-async function getModel(secret: string, word: string) {
-  let model = await KV.get(`model2/${secret}/${word}`, 'json') as { percentile?: number, vec: number[] }|null
-
-  if (!model) {
-    const response = await fetch(`https://semantle.novalis.org/model2/${secret}/${word}`)
-
-    if (response.status !== 200) {
-      throw new Error(`Semantle Error: ${response.status} ${response.statusText} ${await response.text()}`)
-    }
-
-    const text = await response.text()
-    if (text === "") {
-      model = null
-    } else {
-      model = JSON.parse(text) as { "vec": number[] }
-    }
-
-    await KV.put(`model2/${secret}/${word}`, JSON.stringify(model))
-  }
-
-  return model
-}
-
-type Guess = {
-  user: { id: string, name: string },
-  guessNumber: number
-  word: string
-  similarity: number
-  percentile?: number
-}
-
-async function getGuessesFromChannel(channelId: string, secret: string): Promise<Guess[]> {
-  let guesses = await KV.get(`guesses/${channelId}/${secret}`, 'json') as Guess[]|null
-  return guesses || []
-}
-
-function renderPercentile(percentile: number|undefined) {
+function renderPercentile(percentile: number | undefined) {
   if (percentile === 1000) {
     return "FOUND!"
   } else if (percentile != null) {
-    const blocks = Math.round((percentile / 1000)*10)
+    const blocks = Math.round((percentile / 1000) * 10)
     return `${percentile.toString().padStart(4, ' ')}/1000 ` + "🟩".repeat(blocks) + "⬛".repeat(10 - blocks)
   } else {
     return "(cold)"
@@ -96,48 +38,33 @@ function renderPercentile(percentile: number|undefined) {
 }
 
 async function guessWord(user: { id: string, name: string }, channelId: string, word: string) {
-  word = word.replace(/\ /gi, "_")
 
-  const today = Math.floor(Date.now() / 86400000);
-  const initialDay = 19021;
-  const puzzleNumber = (today - initialDay) % secretWords.length;
-  const secret = secretWords[puzzleNumber].toLowerCase()
+  const game = await getSemantleGameToday(channelId)
+  const res = await game.guess(user, word)
 
-  let [secretModel, guessModel, guesses] = await Promise.all([
-    getModel(secret, secret),
-    getModel(secret, word),
-    getGuessesFromChannel(channelId, secret)
-  ])
-
-  if (!guessModel) {
+  if (res.code === 'unknown') {
     return {
       type: InteractionResponseType.ChannelMessageWithSource,
       data: {
-        content: `Ich kenne das Wort '${word}' nicht,,`
+        content: `Ich kenne das Wort **${word}** nicht,,`
       }
     }
   }
 
-  const { percentile } = guessModel
-  const similarity = getCosSim(guessModel.vec, secretModel!.vec) * 100.0;
+  const { guess, guesses } = res
 
-  let guess = guesses.find(g => g.word === word)
-  if (!guess) {
-    guess = {
-      user,
-      guessNumber: guesses.length + 1,
-      word,
-      similarity,
-      percentile
+  if (res.code === 'duplicate') {
+    return {
+      type: InteractionResponseType.ChannelMessageWithSource,
+      data: {
+        content: `${guess.user.name} already guessed **${word}**!`
+      }
     }
-    guesses.push(guess)  
-    guesses = _.sortBy(guesses, g => -g.similarity)
-    await KV.put(`guesses/${channelId}/${secret}`, JSON.stringify(guesses))
   }
 
   let output = ``
 
-  if (guess.percentile === 1000) {
+  if (res.code === 'found') {
     output += `${guess.user.name} wins! The secret word is **${guess.word}**.`
   } else {
     output += `${guess.user.name} guesses **${guess.word}**!`
@@ -172,7 +99,7 @@ async function guessWord(user: { id: string, name: string }, channelId: string, 
 
   output += "\n```\n" + lines.join("\n") + "\n```"
 
-  if (guess.percentile === 1000) {
+  if (res.code === 'found') {
     const time = Date.now() / 86400000
     const nextDay = Math.ceil(time)
     const timeUntilNext = (nextDay - time) * 86400000
@@ -180,7 +107,7 @@ async function guessWord(user: { id: string, name: string }, channelId: string, 
     const leftoverMinutes = (hours - Math.floor(hours)) * 60
     const timeDesc = `${Math.floor(hours)}h${Math.floor(leftoverMinutes)}m`
 
-  
+
     output += `\nYou found it in **${guess.guessNumber}** guesses.`
     output += `\nNext game will be ready in ${timeDesc}.`
   }
@@ -190,32 +117,32 @@ async function guessWord(user: { id: string, name: string }, channelId: string, 
     data: {
       content: output
     },
-  };
+  }
 }
 
 export const handler: InteractionHandler = async (
   interaction: Interaction
 ): Promise<InteractionResponse> => {
-    try {
-      const options = (interaction.data as ApplicationCommandInteractionData)
-      .options as ApplicationCommandInteractionDataOption[];
+  try {
+    const options = (interaction.data as ApplicationCommandInteractionData)
+      .options as ApplicationCommandInteractionDataOption[]
 
-      const word = (options.find(
-        (option) => option.name === "word"
-      ) as ApplicationCommandInteractionDataOption).value;
-      
-      const user = {
-        id: interaction.member.user.id,
-        name: interaction.member.nick || interaction.member.user.username,
-      }
+    const word = (options.find(
+      (option) => option.name === "word"
+    ) as ApplicationCommandInteractionDataOption).value
 
-      return guessWord(user, interaction.channel_id, word)
-    } catch (err: any) {
-      return {
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: err.message,
-        },
-      };
+    const user = {
+      id: interaction.member.user.id,
+      name: interaction.member.nick || interaction.member.user.username,
     }
-};
+
+    return guessWord(user, interaction.channel_id, word)
+  } catch (err: any) {
+    return {
+      type: InteractionResponseType.ChannelMessageWithSource,
+      data: {
+        content: err.message,
+      },
+    }
+  }
+}
