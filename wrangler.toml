@@ -3,6 +3,7 @@ type = "webpack"
 account_id = "e24de7c361b035e990d2814691027093"
 workers_dev = true
 webpack_config = "webpack.config.js"
+compatibility_date = "2022-03-29"
 
 vars = { PUBLIC_KEY = "adcaaecd5b90d477406793d4571c24d036eeab8323b0839c9fcd7d144af0e4ab", APPLICATION_ID = "955033743347814430" }
 

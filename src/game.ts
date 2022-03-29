@@ -46,18 +46,6 @@ export async function getModel(secret: string, word: string) {
   return model
 }
 
-export function getSecretWordToday(): string {
-  const today = Math.floor(Date.now() / 86400000)
-  const initialDay = 19021
-  const puzzleNumber = (today - initialDay) % secretWords.length
-  return secretWords[puzzleNumber].toLowerCase()
-}
-
-export async function getSemantleGameToday(channelId: string) {
-  const secret = getSecretWordToday()
-  return new SemantleGame(secret, channelId)
-}
-
 export type RecordedGuess = {
   user: { id: string, name: string },
   guessNumber: number
@@ -75,7 +63,26 @@ export type GuessResult = {
 }
 
 export class SemantleGame {
-  constructor(readonly channelId: string, readonly secret: string) { }
+  static get secretWordToday() {
+    const today = Math.floor(Date.now() / 86400000)
+    const initialDay = 19021
+    const puzzleNumber = (today - initialDay) % secretWords.length
+    return secretWords[puzzleNumber].toLowerCase()
+  }
+
+  static todayForChannel(channelId: string) {
+    return new SemantleGame(channelId, this.secretWordToday)
+  }
+
+  timeSinceStart: number
+  timeUntilNext: number
+
+  constructor(readonly channelId: string, readonly secret: string) {
+    const now = Date.now()
+    const nowInDays = Date.now() / 86400000
+    this.timeSinceStart = (nowInDays - Math.floor(nowInDays)) * 86400000
+    this.timeUntilNext = (Math.ceil(nowInDays) - nowInDays) * 86400000
+  }
 
   async getGuesses() {
     const { channelId, secret } = this

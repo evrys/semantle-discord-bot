@@ -5,7 +5,7 @@
   "scripts": {
     "build": "wrangler build",
     "dev": "wrangler dev",
-    "format": "prettier --write '**/*.{ts,js,css,json,md}'"
+    "deploy": "wrangler publish && sleep 3 && curl https://semantle.toggly.workers.dev/setup"
   },
   "author": {
     "name": "Greg Brimble",
