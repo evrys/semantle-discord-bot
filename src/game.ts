@@ -79,7 +79,7 @@ export class SemantleGame {
 
   constructor(readonly channelId: string, readonly secret: string) {
     const now = Date.now()
-    const nowInDays = Date.now() / 86400000
+    const nowInDays = now / 86400000
     this.timeSinceStart = (nowInDays - Math.floor(nowInDays)) * 86400000
     this.timeUntilNext = (Math.ceil(nowInDays) - nowInDays) * 86400000
   }

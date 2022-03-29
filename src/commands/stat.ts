@@ -8,7 +8,7 @@ import {
 } from "@glenstack/cf-workers-discord-bot"
 // @ts-ignore
 import AsciiTable from 'ascii-table'
-// @ts-ignore
+
 import { renderPercentile, renderDuration } from '../rendering'
 import { SemantleGame } from '../game'
 
@@ -56,11 +56,6 @@ async function statCommand(channelId: string): Promise<string> {
   }
 
   output += "\n```\n" + lines.join("\n") + "\n```"
-
-  // if (res.code === 'found') {
-  //   output += `\nYou found it in **${guess.guessNumber}** guesses.`
-  //   output += `\nNext game will be ready in ${timeDesc}.`
-  // }
 
   return output
 }

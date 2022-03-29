@@ -30,7 +30,7 @@ async function guessCommand(user: { id: string, name: string }, channelId: strin
   const res = await game.guess(user, word)
 
   if (res.code === 'unknown') {
-    return `Ich kenne das Wort **${word}** nicht,,`
+    return `I don't know the word **${word}**...`
   }
 
   const { guess } = res
