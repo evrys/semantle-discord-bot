@@ -2,7 +2,7 @@ import {
   ApplicationCommand,
   InteractionHandler,
 } from "@glenstack/cf-workers-discord-bot"
-import { command as guessCommand, handler as guessHandler } from "./gs"
+import { command as guessCommand, handler as guessHandler } from "./guess"
 import { command as statCommand, handler as statHandler } from "./stat"
 import { command as giveupCommand, handler as giveupHandler } from "./igiveup"
 

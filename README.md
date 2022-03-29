@@ -1,34 +1,33 @@
-# Cloudflare Workers Discord Bot
+# Semantle Discord Bot
 
-> A bot for the Cloudflare Workers Discord server
+A Discord bot for playing [Semantle](https://semantle.novalis.org/) together with friends. To add it to your server, [click here](https://discord.com/api/oauth2/authorize?client_id=955033743347814430&permissions=2048&scope=applications.commands%20bot).
 
-## Setup
+Semantle is a semantic word game made by [David Turner](https://novalis.org/), where you try to find a secret word by guessing words that are progressively closer in meaning. I got the idea for playing it on Discord from [Trif's Wordle bot](https://github.com/Trif4/Sakuya).
 
-Install at [`https://cloudflare-workers-discord-bot.gregbrimble.workers.dev/`](https://cloudflare-workers-discord-bot.gregbrimble.workers.dev/).
+This bot runs on Cloudflare Workers and simply responds to incoming slash commands, so it should be reasonably stable/scalable. No promises though! It calls through to David's server to get the word similarity data (with some caching), so if the original semantle site goes down the bot will also stop working.
 
-### Environment Variables
-
-Other than those listed in [`wrangler.toml`](./wrangler.toml), this Worker requires a secret `APPLICATION_SECRET` which is set to the Discord "Client Secret".
-
-More information can be found at [`@glenstack/cf-workers-discord-bot`](https://github.com/glenstack/glenstack/tree/master/packages/cf-workers-discord-bot).
+The word list is the same as the Semantle website, but shuffled (so it gets a different word to the official one each day).
 
 ## Usage
 
 ### Slash Commands
 
-#### `/script`
+#### `/guess`
 
-Embed a script from [cloudflareworkers.com](https://cloudflareworkers.com).
+Guess a word in today's semantle game
 
-| Option  | Description                                    |
-| ------- | ---------------------------------------------- |
-| `url`   | The URL of the Worker on cloudflareworkers.com |
-| `title` | An optional title for the Worker script        |
+| Option  | Description        |
+| ------- | ------------------ |
+| `word`  | The word to guess  |
 
-#### `/docs`
+#### `/stat`
 
-Search the [Cloudflare Workers documentation](https://developers.cloudflare.com/workers/).
+Show the status of the game and the top 15 guesses so far
 
-| Option | Description     |
-| ------ | --------------- |
-| `term` | The search term |
+#### `/igiveup`
+
+Type `/igiveup confirm` if you can't get it and want to know the answer
+
+| Option    | Description                                     |
+| --------- | ----------------------------------------------- |
+| `confirm` | Confirm that you wanna be spoiled on the answer |

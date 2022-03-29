@@ -80,7 +80,7 @@ export const handler: InteractionHandler = async (
       return {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: "You really want to give up? Have to type `/giveup confirm`",
+          content: "You really want to give up? Have to type `/igiveup confirm`",
         },
       }
     }
