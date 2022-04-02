@@ -20,13 +20,13 @@ Guess a word in today's semantle game
 | ------- | ------------------ |
 | `word`  | The word to guess  |
 
-<img width="963" alt="Screen Shot 2022-04-02 at 9 43 18 pm" src="https://user-images.githubusercontent.com/89287578/161379802-be6e3397-5e52-4043-9905-592195af1867.png">
+<img width="738" alt="Screen Shot 2022-04-02 at 9 48 39 pm" src="https://user-images.githubusercontent.com/89287578/161379897-f1325332-5660-4b14-bde1-f322e38488d0.png">
 
 #### `/stat`
 
 Show the status of the game and the top 15 guesses so far
 
-<img width="675" alt="Screen Shot 2022-04-01 at 9 14 07 pm" src="https://user-images.githubusercontent.com/89287578/161379650-12ed2a1d-3e36-41e5-ae42-25bfc88bc6f2.png">
+<img width="963" alt="Screen Shot 2022-04-02 at 9 43 18 pm" src="https://user-images.githubusercontent.com/89287578/161379802-be6e3397-5e52-4043-9905-592195af1867.png">
 
 #### `/igiveup`
 
