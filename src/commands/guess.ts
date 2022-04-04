@@ -35,7 +35,7 @@ async function guessCommand(user: { id: string, name: string }, channelId: strin
 
   const { guess } = res
 
-  let output = `${guess.user.name} guesses **${guess.word}**!`
+  let output = `${user.name} guesses **${guess.word}**!`
 
   if (res.code === 'duplicate') {
     output += `\n${guess.user.name} already guessed **${word}**! Similarity: **${guess.similarity.toFixed(2)}** ${renderPercentile(guess.percentile)}`
