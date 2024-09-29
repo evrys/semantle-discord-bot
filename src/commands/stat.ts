@@ -1,24 +1,11 @@
-import _ from 'lodash'
-import {
-  ApplicationCommand,
-  Interaction,
-  InteractionHandler,
-  InteractionResponse,
-  InteractionResponseType
-} from "@glenstack/cf-workers-discord-bot"
 // @ts-ignore
 import AsciiTable from 'ascii-table'
 
 import { renderPercentile, renderDuration } from '../rendering'
 import { SemantleGame } from '../game'
 
-export const command: ApplicationCommand = {
-  name: "stat",
-  description: "Get current status of Semantle game"
-}
-
-async function statCommand(channelId: string): Promise<string> {
-  const game = SemantleGame.todayForChannel(channelId)
+export async function statCommand(channelId: string, kvs: KVNamespace): Promise<string> {
+  const game = SemantleGame.todayForChannel(channelId, kvs)
   const guesses = await game.getGuesses()
 
   let output = `The current game started **${renderDuration(game.timeSinceStart)}** ago.`
@@ -49,7 +36,7 @@ async function statCommand(channelId: string): Promise<string> {
   table.setAlignLeft(4)
 
   const lines = table.toString().split("\n") as string[]
-  lines.splice(3, 0, "  " + "―".repeat(lines[0].length))
+  lines.splice(3, 0, "  " + "―".repeat(lines[0]?.length || 0))
 
   if (guesses.length > 15) {
     lines.push("  ...")
@@ -58,24 +45,4 @@ async function statCommand(channelId: string): Promise<string> {
   output += "\n```\n" + lines.join("\n") + "\n```"
 
   return output
-}
-
-export const handler: InteractionHandler = async (
-  interaction: Interaction
-): Promise<InteractionResponse> => {
-  try {
-    return {
-      type: InteractionResponseType.ChannelMessageWithSource,
-      data: {
-        content: await statCommand(interaction.channel_id),
-      },
-    }
-  } catch (err: any) {
-    return {
-      type: InteractionResponseType.ChannelMessageWithSource,
-      data: {
-        content: err.message,
-      },
-    }
-  }
 }

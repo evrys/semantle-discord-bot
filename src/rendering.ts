@@ -1,6 +1,6 @@
 
 
-export function renderPercentile(percentile: number | undefined) {
+export function renderPercentile(percentile: number | null) {
   if (percentile === 1000) {
     return "FOUND!"
   } else if (percentile != null) {

@@ -1,5 +1,4 @@
 {
-  "svelte.enable-ts-plugin": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "javascript.format.semicolons": "remove",
   "typescript.format.semicolons": "remove",
@@ -11,6 +10,7 @@
     "node_modules/": true,
     "tmp/": true,
     "package-lock.json": true,
+    ".wrangler/tmp/": true
   },
   "[typescript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"

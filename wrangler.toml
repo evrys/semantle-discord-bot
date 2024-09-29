@@ -1,12 +1,10 @@
 name = "semantle"
-type = "webpack"
+main = "./src/server.ts"
+compatibility_date = "2024-09-25"
 account_id = "e24de7c361b035e990d2814691027093"
-workers_dev = true
-webpack_config = "webpack.config.js"
-compatibility_date = "2022-03-29"
+kv_namespaces = [{ binding = "KV", id = "c332d2251cbc47e3aef4071cb591b4c9" }]
 
-vars = { PUBLIC_KEY = "adcaaecd5b90d477406793d4571c24d036eeab8323b0839c9fcd7d144af0e4ab", APPLICATION_ID = "955033743347814430" }
-
-kv_namespaces = [
-	 { binding = "KV", id = "c332d2251cbc47e3aef4071cb591b4c9" }
-]
+# [secrets]
+# DISCORD_TOKEN
+# DISCORD_PUBLIC_KEY
+# DISCORD_APPLICATION_ID

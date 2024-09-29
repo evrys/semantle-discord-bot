@@ -1,49 +1,15 @@
-import _ from "lodash"
+import { sortBy } from "lodash-es"
 import { secretWords } from "./secretWords"
 
-
-function mag(a: number[]) {
-  return Math.sqrt(a.reduce(function (sum, val) {
-    return sum + val * val
-  }, 0))
+type SemantleSimilarityData = {
+  similarity: number
+  initialSimilarity: number
+  percentile: number | null
+  closestSimiliarity: number
 }
 
-function dot(f1: number[], f2: number[]) {
-  return f1.reduce(function (sum, a, idx) {
-    return sum + a * f2[idx]
-  }, 0)
-}
-
-function getCosSim(f1: number[], f2: number[]) {
-  return dot(f1, f2) / (mag(f1) * mag(f2))
-}
-
-/**
- * Retrieve similiarity data between a secret and a guess word
- * from the semantle server. Successful responses are cached
- * indefinitely in KV store.
- */
-export async function getModel(secret: string, word: string) {
-  let model = await KV.get(`model2/${secret}/${word}`, 'json') as { percentile?: number, vec: number[] } | null
-
-  if (!model) {
-    const response = await fetch(`https://semantle.novalis.org/model2/${secret}/${word}`)
-
-    if (response.status !== 200) {
-      throw new Error(`Semantle Error: ${response.status} ${response.statusText} ${await response.text()}`)
-    }
-
-    const text = await response.text()
-    if (text === "") {
-      model = null
-    } else {
-      model = JSON.parse(text) as { "vec": number[] }
-    }
-
-    await KV.put(`model2/${secret}/${word}`, JSON.stringify(model))
-  }
-
-  return model
+type SemantleResponseType = SemantleSimilarityData | {
+  error: string
 }
 
 export type RecordedGuess = {
@@ -51,7 +17,7 @@ export type RecordedGuess = {
   guessNumber: number
   word: string
   similarity: number
-  percentile?: number
+  percentile: number | null
 }
 
 export type GuessResult = {
@@ -67,17 +33,17 @@ export class SemantleGame {
     const today = Math.floor(Date.now() / 86400000)
     const initialDay = 19021
     const puzzleNumber = (today - initialDay) % secretWords.length
-    return secretWords[puzzleNumber].toLowerCase()
+    return secretWords[puzzleNumber]!.toLowerCase()
   }
 
-  static todayForChannel(channelId: string) {
-    return new SemantleGame(channelId, this.secretWordToday)
+  static todayForChannel(channelId: string, kvs: KVNamespace) {
+    return new SemantleGame(channelId, this.secretWordToday, kvs)
   }
 
   timeSinceStart: number
   timeUntilNext: number
 
-  constructor(readonly channelId: string, readonly secret: string) {
+  constructor(readonly channelId: string, readonly secret: string, readonly kvs: KVNamespace) {
     const now = Date.now()
     const nowInDays = now / 86400000
     this.timeSinceStart = (nowInDays - Math.floor(nowInDays)) * 86400000
@@ -86,20 +52,53 @@ export class SemantleGame {
 
   async getGuesses() {
     const { channelId, secret } = this
-    return (await KV.get(`guesses/${channelId}/${secret}`, 'json') as RecordedGuess[] | null) || []
+    return (await this.kvs.get(`guesses/${channelId}/${secret}`, 'json') as RecordedGuess[] | null) || []
   }
+
+
+  /**
+   * Retrieve similiarity data between a secret and a guess word
+   * from the semantle server. Successful responses are cached
+   * indefinitely in KV store.
+   */
+  async getSimilarityData(secret: string, word: string) {
+    let data = await this.kvs.get(`similarity/${word}/${secret}`, 'json') as SemantleSimilarityData | null
+
+    if (!data) {
+      const response = await fetch(`https://server.semantle.com/similarity/${word}/${secret}/en`)
+
+      if (response.status !== 200 && response.status !== 404) {
+        throw new Error(`Semantle Error: ${response.status} ${response.statusText} ${await response.text()}`)
+      }
+
+      const result = await response.json() as SemantleResponseType
+
+      if ('error' in result) {
+        if (result.error === "Word not found") {
+          return null
+        } else {
+          throw new Error(`Semantle Error: ${result.error}`)
+        }
+      }
+
+      data = result
+      await this.kvs.put(`similarity/${secret}/${word}`, JSON.stringify(data))
+    }
+
+    return data
+  }
+
 
   async guess(user: { id: string, name: string }, word: string): Promise<GuessResult> {
     const { channelId, secret } = this
     word = word.replace(/\ /gi, "_")
 
-    let [secretModel, guessModel, guesses] = await Promise.all([
-      getModel(secret, secret),
-      getModel(secret, word),
+    let [similarityData, guesses] = await Promise.all([
+      this.getSimilarityData(secret, word),
       this.getGuesses()
     ])
 
-    if (!guessModel) {
+    if (!similarityData) {
       return {
         code: 'unknown'
       }
@@ -115,8 +114,7 @@ export class SemantleGame {
     }
 
     // Recording a new guess
-    const { percentile } = guessModel
-    const similarity = getCosSim(guessModel.vec, secretModel!.vec) * 100.0
+    const { similarity, percentile } = similarityData
 
     const guess = {
       user,
@@ -127,8 +125,8 @@ export class SemantleGame {
     }
 
     guesses.push(guess)
-    guesses = _.sortBy(guesses, g => -g.similarity)
-    await KV.put(`guesses/${channelId}/${secret}`, JSON.stringify(guesses))
+    guesses = sortBy(guesses, g => -g.similarity)
+    await this.kvs.put(`guesses/${channelId}/${secret}`, JSON.stringify(guesses))
 
     let code: GuessResult['code'] = 'cold'
     if (percentile === 1000) {

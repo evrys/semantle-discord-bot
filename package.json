@@ -1,34 +1,35 @@
 {
-  "name": "cloudflare-workers-discord-bot",
+  "name": "semantle-discord-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot for playing the game Semantle",
+  "type": "module",
   "private": true,
-  "description": "A bot for the Cloudflare Workers Discord server",
+  "main": "src/server.js",
   "scripts": {
-    "build": "wrangler build",
     "dev": "wrangler dev",
-    "deploy": "wrangler publish && sleep 3 && curl https://semantle.toggly.workers.dev/setup"
+    "tsc": "tsc --pretty --noEmit --incremental",
+    "register": "tsx src/register.js",
+    "deploy": "wrangler deploy"
   },
-  "author": {
-    "name": "Greg Brimble",
-    "email": "developer@gregbrimble.com",
-    "url": "https://gregbrimble.com"
+  "keywords": [],
+  "author": "Evan Summers <tofuevan@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "ascii-table": "^0.0.9",
+    "discord-interactions": "^4.0.0",
+    "itty-router": "^5.0.9",
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^2.2.2",
-    "@cloudflare/wrangler": "1.13.0",
-    "@types/lodash": "^4.14.180",
-    "@types/node": "14.14.21",
-    "cross-fetch": "3.0.6",
-    "prettier": "2.0.5",
-    "ts-loader": "8.0.14",
-    "typescript": "4.1.3",
-    "webpack": "5.12.2",
-    "webpack-cli": "4.3.1"
-  },
-  "dependencies": {
-    "@glenstack/cf-workers-algolia-search": "1.0.2",
-    "@glenstack/cf-workers-discord-bot": "1.1.0",
-    "ascii-table": "^0.0.9",
-    "lodash": "^4.17.21",
-    "rss-parser": "3.10.0"
+    "@cloudflare/workers-types": "^4.20240925.0",
+    "@types/node": "^22.7.4",
+    "discord-api-types": "^0.37.101",
+    "dotenv": "^16.0.3",
+    "globals": "^15.0.0",
+    "sinon": "^19.0.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "wrangler": "^3.78.12"
   }
 }

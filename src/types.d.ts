@@ -1,7 +1,6 @@
-declare const APPLICATION_ID: string;
-declare const APPLICATION_SECRET: string;
-declare const PUBLIC_KEY: string;
-
-declare const WEBHOOK_URL: string;
-
-declare const KV: KVNamespace;
+type Env = {
+  DISCORD_APPLICATION_ID: string
+  DISCORD_PUBLIC_KEY: string
+  DISCORD_TOKEN: string
+  KV: KVNamespace
+}
