@@ -3,7 +3,7 @@
  * and registration.
  */
 
-import { ApplicationCommandOptionType } from "discord-api-types/v10"
+import { ApplicationCommandOptionType } from "discord-api-types/v10";
 
 export const GUESS_COMMAND = {
   name: "guess",
@@ -13,15 +13,15 @@ export const GUESS_COMMAND = {
       name: "word",
       description: "The word to guess",
       type: ApplicationCommandOptionType.String,
-      required: true
+      required: true,
     },
   ],
-}
+};
 
 export const STAT_COMMAND = {
   name: "stat",
-  description: "Get current status of Semantle game"
-}
+  description: "Get current status of Semantle game",
+};
 
 export const IGIVEUP_COMMAND = {
   name: "igiveup",
@@ -31,7 +31,7 @@ export const IGIVEUP_COMMAND = {
       name: "confirm",
       description: "Type confirm to verify",
       type: ApplicationCommandOptionType.String,
-      required: true
+      required: true,
     },
   ],
-}
+};

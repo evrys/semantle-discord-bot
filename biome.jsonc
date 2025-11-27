@@ -1,0 +1,45 @@
+{
+  // Make sure to keep schema version in sync with ci and package.json
+  "$schema": "https://biomejs.dev/schemas/2.3.7/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        // vscode already warns about these
+        "noUnusedVariables": "off",
+        "noUnusedFunctionParameters": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always"
+    }
+  },
+  "assist": {
+    "enabled": false
+  },
+  "json": {
+    "formatter": {
+      "enabled": true,
+      "expand": "always"
+    }
+  }
+}

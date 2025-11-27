@@ -9,12 +9,14 @@
     "dev": "wrangler dev",
     "tsc": "tsc --pretty --noEmit --incremental",
     "register": "tsx src/register.js",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "format": "biome format --write ."
   },
   "keywords": [],
   "author": "Evan Summers <tofuevan@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@biomejs/biome": "^2.3.8",
     "@types/lodash-es": "^4.17.12",
     "ascii-table": "^0.0.9",
     "discord-interactions": "^4.0.0",
