@@ -38,3 +38,5 @@ Type `/igiveup confirm` if you can't get it and want to know the answer
 
 <img width="424" alt="Screen Shot 2022-04-02 at 9 49 25 pm" src="https://user-images.githubusercontent.com/89287578/161379836-8fe9f8ea-5982-44a6-a4a3-325b69a7b0e6.png">
 
+## Development
+

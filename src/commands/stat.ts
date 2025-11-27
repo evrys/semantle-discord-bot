@@ -1,8 +1,8 @@
 // @ts-expect-error
 import AsciiTable from "ascii-table";
 
-import { SemantleGame } from "../game";
-import { renderDuration, renderPercentile } from "../rendering";
+import { SemantleGame } from "../game.ts";
+import { renderDuration, renderPercentile } from "../rendering.ts";
 
 export async function statCommand(
   channelId: string,
@@ -11,7 +11,7 @@ export async function statCommand(
   const game = SemantleGame.todayForChannel(channelId, kvs);
   const guesses = await game.getGuesses();
 
-  let output = `The current game has started **${renderDuration(game.timeSinceStart)}** ago.`;
+  let output = `The current game started **${renderDuration(game.timeSinceStart)}** ago.`;
 
   if (guesses.length === 0) {
     output += `\nThere haven't been any guesses yet!`;
@@ -45,13 +45,13 @@ export async function statCommand(
   table.setAlignLeft(4);
 
   const lines = table.toString().split("\n") as string[];
-  lines.splice(3, 0, "  " + "―".repeat(lines[0]?.length || 0));
+  lines.splice(3, 0, `  ${"―".repeat(lines[0]?.length || 0)}`);
 
   if (guesses.length > 15) {
     lines.push("  ...");
   }
 
-  output += "\n```\n" + lines.join("\n") + "\n```";
+  output += `\n\`\`\`\n${lines.join("\n")}\n\`\`\``;
 
   return output;
 }

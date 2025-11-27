@@ -2,23 +2,23 @@
  * The core server that runs on a Cloudflare worker.
  */
 
-import { AutoRouter } from "itty-router";
-import { verifyKey } from "discord-interactions";
-import { GUESS_COMMAND, STAT_COMMAND, IGIVEUP_COMMAND } from "./commands";
 import type { APIInteraction } from "discord-api-types/v10";
 import {
-  InteractionType,
-  InteractionResponseType,
-  ApplicationCommandType,
   ApplicationCommandOptionType,
+  ApplicationCommandType,
+  InteractionResponseType,
+  InteractionType,
 } from "discord-api-types/v10";
-import { statCommand } from "./commands/stat";
-import { guessCommand } from "./commands/guess";
-import { giveupCommand } from "./commands/igiveup";
-import { toString } from "lodash-es";
+import { verifyKey } from "discord-interactions";
+import { AutoRouter } from "itty-router";
+import { toString as lodashToString } from "lodash-es";
+import { GUESS_COMMAND, IGIVEUP_COMMAND, STAT_COMMAND } from "./commands.ts";
+import { guessCommand } from "./commands/guess.ts";
+import { giveupCommand } from "./commands/igiveup.ts";
+import { statCommand } from "./commands/stat.ts";
 
 class JsonResponse extends Response {
-  constructor(body: any, init?: ResponseInit) {
+  constructor(body: unknown, init?: ResponseInit) {
     const jsonBody = JSON.stringify(body);
     init = Object.assign({
       ...init,
@@ -58,7 +58,7 @@ async function handleDiscordCommandRequest(request: Request, env: Env) {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (interaction.data.name.toLowerCase()) {
       case GUESS_COMMAND.name.toLowerCase(): {
-        if (interaction.data.type != ApplicationCommandType.ChatInput) {
+        if (interaction.data.type !== ApplicationCommandType.ChatInput) {
           return new JsonResponse(
             {
               error: `Unexpected application command type ${interaction.data.type}`,
@@ -124,7 +124,7 @@ async function handleDiscordCommandRequest(request: Request, env: Env) {
         });
       }
       case IGIVEUP_COMMAND.name.toLowerCase(): {
-        if (interaction.data.type != ApplicationCommandType.ChatInput) {
+        if (interaction.data.type !== ApplicationCommandType.ChatInput) {
           return new JsonResponse(
             {
               error: `Unexpected application command type ${interaction.data.type}`,
@@ -201,7 +201,7 @@ router.post("/", async (request, env: Env) => {
     return {
       type: InteractionResponseType.ChannelMessageWithSource,
       data: {
-        content: toString(err),
+        content: lodashToString(err),
       },
     };
   }

@@ -1,4 +1,4 @@
-import { SemantleGame } from "../game";
+import { SemantleGame } from "../game.ts";
 
 export async function giveupCommand(
   user: { id: string; name: string },

@@ -1,6 +1,6 @@
-import { GUESS_COMMAND, STAT_COMMAND, IGIVEUP_COMMAND } from "./commands";
 import dotenv from "dotenv";
 import process from "node:process";
+import { GUESS_COMMAND, IGIVEUP_COMMAND, STAT_COMMAND } from "./commands.ts";
 
 /**
  * This file is meant to be run from the command line, and is not used by the

@@ -1,5 +1,5 @@
-import { SemantleGame } from "../game";
-import { renderDuration, renderPercentile } from "../rendering";
+import { SemantleGame } from "../game.ts";
+import { renderDuration, renderPercentile } from "../rendering.ts";
 
 export async function guessCommand(
   user: { id: string; name: string },

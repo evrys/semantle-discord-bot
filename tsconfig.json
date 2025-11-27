@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "module": "esnext",
-    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "lib": [
       "esnext",
       "webworker"
@@ -12,10 +12,11 @@
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
     "preserveConstEnums": true,
-    "moduleResolution": "node",
     "sourceMap": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "types": [
       "@cloudflare/workers-types",
       "node"

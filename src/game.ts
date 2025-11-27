@@ -1,5 +1,5 @@
 import { sortBy } from "lodash-es";
-import { secretWords } from "./secretWords";
+import { secretWords } from "./secretWords.ts";
 
 type SemantleSimilarityData = {
   similarity: number;
@@ -37,11 +37,15 @@ export class SemantleGame {
     const today = Math.floor(Date.now() / 86400000);
     const initialDay = 19021;
     const puzzleNumber = (today - initialDay) % secretWords.length;
-    return secretWords[puzzleNumber]!.toLowerCase();
+    const secretWord = secretWords[puzzleNumber];
+    if (!secretWord) {
+      throw new Error(`No secret word for puzzle number ${puzzleNumber}`);
+    }
+    return secretWord.toLowerCase();
   }
 
   static todayForChannel(channelId: string, kvs: KVNamespace) {
-    return new SemantleGame(channelId, this.secretWordToday, kvs);
+    return new SemantleGame(channelId, SemantleGame.secretWordToday, kvs);
   }
 
   timeSinceStart: number;
@@ -111,7 +115,7 @@ export class SemantleGame {
     word: string,
   ): Promise<GuessResult> {
     const { channelId, secret } = this;
-    word = word.replace(/\ /gi, "_");
+    word = word.replace(/ /gi, "_");
 
     let [similarityData, guesses] = await Promise.all([
       this.getSimilarityData(secret, word),
