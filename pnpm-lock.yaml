@@ -11,9 +11,6 @@ importers:
       '@biomejs/biome':
         specifier: ^2.3.8
         version: 2.3.8
-      '@types/lodash-es':
-        specifier: ^4.17.12
-        version: 4.17.12
       ascii-table:
         specifier: ^0.0.9
         version: 0.0.9
@@ -30,6 +27,9 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20240925.0
         version: 4.20251127.0
+      '@types/lodash-es':
+        specifier: ^4.17.12
+        version: 4.17.12
       '@types/node':
         specifier: ^22.7.4
         version: 22.19.1
