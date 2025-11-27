@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "tsc": "tsc --pretty --noEmit --incremental",
-    "register": "node src/register.ts",
+    "register": "tsx src/register.ts",
     "deploy": "wrangler deploy",
     "lint": "biome check .",
     "format": "biome format --write ."
